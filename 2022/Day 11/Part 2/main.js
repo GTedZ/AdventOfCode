@@ -3,6 +3,7 @@ var fs = require('fs');
 var input = fs.readFileSync('inputs.txt').toString().replace(/\r/gm, "").split('\n\n');
 
 const monkeys = [];
+let prod = 1;
 for (let monkey of input) { // setting up the monkey objects
     let [, startingItems, Operation, Test, ifTrue, ifFalse] = monkey.split('\n');
     let monkeyObj = {
@@ -14,16 +15,22 @@ for (let monkey of input) { // setting up the monkey objects
         itemsInspected: 0
     };
     monkeys.push(monkeyObj);
+    prod *= monkeyObj.test;
 }
 
-const ROUNDS = 20;
+const ROUNDS = 10000;
 for (let x = 0; x < ROUNDS; x++) {
     for (let monkey of monkeys) {
         handleTurn(monkey);
     }
 
 }
-console.log(monkeys);
+
+let inspects = [];
+for (let monk of Object.values(monkeys)) {
+    inspects.push(monk.itemsInspected);
+}
+console.log(inspects)
 
 function handleTurn(monkey) {
     while (monkey.items.length != 0) {
@@ -34,7 +41,7 @@ function handleTurn(monkey) {
         if (op == '+') item = parseInt(num) + parseInt(num2);
         else if (op == '*') item = num * num2;
         else { console.log("ERROR ERROR OP NOT FOUND"); process.exit() }
-        // item = Math.floor(item / 3);
+        item = item % prod;
         let toMonkey = monkey.ifFalse;
         if (item % monkey.test == 0) toMonkey = monkey.ifTrue;
         monkeys[toMonkey].items.push(item);
